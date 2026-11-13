@@ -69,6 +69,8 @@ test("学生はこれまでの記録（推移・苦手な文字・指）を見�
   await page.goto("/");
   await page.getByPlaceholder("例: y220020").fill("y220020");
   await page.getByRole("button", { name: "はじめる" }).click();
+  // ログインが終わって（トークンを保存して）から再読み込みする。終わる前に読み直すと、ログイン前の画面に戻る
+  await expect(page.getByText("高木勇輔（y220020）")).toBeVisible();
   await page.reload();
   await expect(page.getByText("高木勇輔（y220020）")).toBeVisible();
   await page.getByRole("button", { name: "これまでの記録を見る" }).click();
