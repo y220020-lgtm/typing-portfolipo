@@ -36,7 +36,7 @@ AI（OpenAI 互換の LLM）が、レベルに合った問題や、学生ごと�
 | API サーバー | Node.js 22、Express 5（REST API 35 本） |
 | データベース | SQLite（better-sqlite3）。7 テーブル |
 | AI | OpenAI 互換の Chat Completions API（vLLM 上の Qwen で動作確認）。開発・テスト用の AI モック（依存なしの Node.js） |
-| テスト | Vitest（単体・API 292 件）、Playwright（E2E 23 件） |
+| テスト | Vitest（単体・API 292 件）、Playwright（E2E 23 件。CI では通常の構成の 16 件を実行） |
 | 配置 | Podman のコンテナ（アプリ ＋ AI モック）、oauth2-proxy による SSO（`AUTH_MODE=proxy`）、サブパス配下での動作 |
 
 ## 全体の構成
@@ -147,7 +147,7 @@ npm run format:check  # 書式の確認（Prettier）
 npm run test:e2e      # ブラウザでの通しのテスト（Playwright。初回は npx playwright install）
 ```
 
-GitHub Actions（[`.github/workflows/ci.yml`](.github/workflows/ci.yml)）で、push と pull request のたびに型チェック・書式の確認・単体テスト・ビルド・E2E を実行します。
+GitHub Actions（[`.github/workflows/ci.yml`](.github/workflows/ci.yml)）で、push と pull request のたびに型チェック・書式の確認・単体テスト・ビルド・E2E（通常の構成の 16 件）を実行します。AI モック・偽の SSO プロキシ・コンテナを使う E2E（`npm run test:e2e:mock`・`test:e2e:sso`・`test:e2e:container`）は、それぞれの構成を用意して手元で実行します。
 
 | 種類 | 内容 |
 |---|---|
