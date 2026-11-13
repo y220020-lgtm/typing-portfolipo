@@ -1,0 +1,1429 @@
+/* =====================================================================
+   タイピング練習 — 画面のデザイン「Futuristic Typing Lab」（2026-10-23 改訂）
+   色・余白・角丸・文字は、下の変数（デザイントークン）で決める。画面に色を直接書かない。
+   方針: 濃紺（ネイビー）の世界観に、シアン・エレクトリックブルー・パープル・マゼンタを光のアクセントとして使う。
+   - 外枠（ヘッダー・ログインの背景・練習の画面）は暗い面、表や入力の多い区画は明るい面にして読みやすさを保つ
+   - グラデーションと発光は「進み具合・主な操作・グラフ・今の文字」など意味のある所だけに使う
+   - アニメーションは短く（0.2 秒前後）。動きを減らす設定の端末では止める
+   文字のコントラストは、本文 4.5:1 以上・大きい文字 3:1 以上を計算で確認する（log/work.md）。
+   ===================================================================== */
+:root {
+  /* 基本の色 */
+  --navy-950: #070b1d; /* いちばん暗い面（練習の画面の背景） */
+  --navy-900: #0b1230; /* ヘッダー・ログインの背景 */
+  --navy-800: #141d44; /* 暗い区画 */
+  --navy-700: #24306a;
+  --cyan-400: #22d3ee; /* 光のアクセント（暗い面の上の文字・正しく打てた文字） */
+  --cyan-600: #0e7490; /* 明るい面の上のシアン（文字に使える濃さ） */
+  --blue-600: #3346d3; /* エレクトリックブルー（主な操作・リンク） */
+  --blue-500: #4a5cf0;
+  --blue-100: #e3e7ff;
+  --blue-50: #f2f4ff;
+  --purple-500: #8b5cf6;
+  --purple-600: #6d3fe0;
+  --purple-100: #efe9ff;
+  --magenta-400: #f472b6; /* 暗い面の上の間違い */
+  --magenta-600: #c0267a; /* 明るい面の上のマゼンタ */
+
+  /* 面と線 */
+  --bg: #eef1fb; /* 明るい画面の背景（わずかに青み） */
+  --surface: #ffffff; /* 明るい区画 */
+  --surface-muted: #f5f7fd;
+  --border: #dadff0;
+  --border-strong: #b9c1dc;
+  --dark-surface: rgba(20, 29, 68, 0.72); /* 暗い面の上の区画 */
+  --dark-border: rgba(148, 163, 255, 0.22);
+
+  /* 文字 */
+  --text: #131a3a;
+  --text-muted: #4d5778;
+  --text-faint: #6b7598;
+  --text-on-dark: #f1f4ff;
+  --text-on-dark-muted: #aab4dc;
+
+  /* 状態の色（明るい面の上） */
+  --ok: #0e8a6a;
+  --ok-text: #0b6f55;
+  --ok-bg: #e4f8f1;
+  --ng: #c0267a;
+  --ng-text: #a51f68;
+  --ng-bg: #fdeef6;
+  --warn-text: #8a5a00;
+  --warn-bg: #fff4d6;
+  --warn-border: #f0c75e;
+
+  /* グラデーション（意味のある所だけ） */
+  --grad-brand: linear-gradient(120deg, var(--cyan-400) 0%, var(--blue-500) 45%, var(--purple-500) 75%, var(--magenta-400) 100%);
+  --grad-action: linear-gradient(120deg, #3346d3 0%, #6d3fe0 100%); /* 主なボタン（白い文字が読める濃さ） */
+  --grad-soft: linear-gradient(120deg, #e8fbff 0%, #eef0ff 50%, #f7ecff 100%);
+  --grad-night:
+    radial-gradient(1200px 600px at 10% -10%, rgba(34, 211, 238, 0.16), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(139, 92, 246, 0.2), transparent 60%),
+    radial-gradient(800px 600px at 50% 120%, rgba(244, 114, 182, 0.12), transparent 60%), var(--navy-900);
+  --glow-cyan: 0 0 0 1px rgba(34, 211, 238, 0.35), 0 0 24px rgba(34, 211, 238, 0.25);
+  --glow-purple: 0 0 0 1px rgba(139, 92, 246, 0.4), 0 8px 28px rgba(109, 63, 224, 0.28);
+
+  /* 余白・角丸・影 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --radius-sm: 8px; /* ボタン・入力欄 */
+  --radius: 12px; /* 区画・問題の表示 */
+  --radius-lg: 14px;
+  --radius-pill: 999px; /* 進み具合の棒・印 */
+  --shadow-sm: 0 1px 2px rgba(19, 26, 58, 0.06);
+  --shadow: 0 1px 2px rgba(19, 26, 58, 0.06), 0 8px 24px rgba(51, 70, 211, 0.08);
+  --shadow-lg: 0 20px 60px rgba(7, 11, 29, 0.45);
+  --focus: 0 0 0 3px rgba(34, 211, 238, 0.55); /* キーボード操作の位置（シアンの光） */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* 文字（見出し / 小見出し / 本文 / 補助 の 4 段） */
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --fs-xs: 0.78rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.05rem;
+  --fs-xl: 1.3rem;
+  --fs-2xl: 1.75rem;
+}
+
+/* ---- 土台 ---- */
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: var(--fs-md);
+  line-height: 1.6;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3 {
+  color: var(--text);
+  line-height: 1.3;
+  margin: 0 0 var(--space-3);
+}
+h2 {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+}
+h3 {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  margin-top: var(--space-5);
+}
+a {
+  color: var(--blue-600);
+}
+.muted {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+.mono {
+  font-family: var(--font-mono);
+}
+.icon {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+  vertical-align: -0.2em;
+}
+
+/* ---- 全体の枠・ヘッダー ---- */
+.app {
+  min-height: 100vh;
+}
+.app-header {
+  background: var(--navy-800);
+  color: var(--text-on-dark);
+}
+.app-header-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--text-on-dark);
+  letter-spacing: 0.02em;
+}
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.16);
+}
+.user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--text-on-dark-muted);
+}
+.user strong {
+  color: var(--text-on-dark);
+  font-weight: 600;
+}
+.role-badge {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--text-on-dark);
+}
+.app-header button.link {
+  color: var(--text-on-dark);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+}
+.app-header button.link:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+main {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: var(--space-5);
+}
+
+/* ---- カード ---- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-5);
+  box-shadow: var(--shadow);
+}
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+.card-header h2 {
+  margin: 0;
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.section-title .icon {
+  color: var(--blue-600);
+}
+
+/* ---- ボタン（主・副・危険・リンク。どの画面も同じ形） ---- */
+button {
+  font: inherit;
+  font-size: var(--fs-md);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 9px 18px;
+  border: 1px solid var(--blue-600);
+  background: var(--blue-600);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.05s;
+}
+button:hover {
+  background: var(--blue-500);
+  border-color: var(--blue-500);
+}
+button:active {
+  transform: translateY(1px);
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+}
+/* 押せないボタンは灰色にして、押せないことをはっきりさせる */
+button:disabled,
+button:disabled:hover {
+  background: var(--surface-disabled);
+  border-color: var(--border);
+  color: var(--text-muted);
+  cursor: default;
+  transform: none;
+}
+button.secondary {
+  background: var(--surface);
+  color: var(--blue-600);
+  border-color: var(--border-strong);
+}
+button.secondary:hover:not(:disabled) {
+  background: var(--blue-50);
+  border-color: var(--blue-600);
+}
+button.danger {
+  background: var(--surface);
+  color: var(--ng-text);
+  border-color: #f1b4b4;
+}
+button.danger:hover:not(:disabled) {
+  background: var(--ng-bg);
+  border-color: var(--ng-text);
+}
+button.link {
+  background: none;
+  border: none;
+  color: var(--blue-600);
+  padding: 4px 8px;
+  font-weight: 600;
+}
+button.link:hover {
+  background: var(--blue-50);
+}
+button.danger-link {
+  color: var(--ng-text);
+}
+button.danger-link:hover {
+  background: var(--ng-bg);
+}
+button.lg {
+  padding: 12px 24px;
+  font-size: var(--fs-lg);
+}
+button.block {
+  width: 100%;
+}
+
+/* ---- 入力欄 ---- */
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--space-4);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+input,
+select,
+textarea {
+  font: inherit;
+  font-size: var(--fs-md);
+  font-weight: 400;
+  color: var(--text);
+  padding: 9px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--blue-600);
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-faint);
+}
+.inline-check {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+.inline-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--blue-600);
+}
+
+/* ---- お知らせ（成功・エラー） ---- */
+.error,
+.ok-message {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+.error {
+  color: var(--ng-text);
+}
+.ok-message {
+  color: var(--ok-text);
+}
+p.error,
+p.ok-message {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+}
+p.error {
+  background: var(--ng-bg);
+}
+p.ok-message {
+  background: var(--ok-bg);
+}
+
+/* ---- 数値のまとめ（結果・記録・ダッシュボード） ---- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+.stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-4);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.stats .value {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.stats .label {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+/* 主に見る数値（WPM または 文字/分）は、左の青い線で示す */
+.stats > div.accent {
+  border-left: 3px solid var(--blue-600);
+}
+
+/* 円の進み具合（正確率） */
+.ring {
+  --p: 0;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(var(--blue-600) calc(var(--p) * 1%), var(--blue-100) 0);
+  flex: none;
+}
+.ring::before {
+  content: "";
+  grid-area: 1 / 1;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--surface);
+}
+.ring span {
+  grid-area: 1 / 1;
+  font-weight: 700;
+  font-size: var(--fs-lg);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 表 ---- */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: var(--space-4);
+  font-size: var(--fs-sm);
+}
+th,
+td {
+  text-align: left;
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.03em;
+  background: var(--surface-muted);
+  border-bottom-color: var(--border-strong);
+}
+thead th:first-child {
+  border-top-left-radius: var(--radius-sm);
+}
+thead th:last-child {
+  border-top-right-radius: var(--radius-sm);
+}
+tbody tr:hover td {
+  background: var(--blue-50);
+}
+td {
+  font-variant-numeric: tabular-nums;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+
+/* ---- タブ（教員のメニュー） ---- */
+.tabs {
+  display: flex;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border);
+  max-width: 100%;
+  /* 狭い画面では横にスクロールする。下線を帯の線に 1px 重ねるため、縦はスクロールさせない（右端に上下の矢印が出ていた）。
+     スクロールバーも出さない */
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 1px; /* 下線（margin-bottom: -1px）が切れないように */
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+/* 教員のメニューは下線のタブ（今いる画面に青い下線） */
+.tabs button {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  padding: 10px 4px;
+  margin-bottom: -1px;
+}
+.tabs button:hover {
+  background: transparent;
+  color: var(--blue-600);
+}
+.tabs button.active {
+  background: transparent;
+  color: var(--text);
+  border-bottom-color: var(--blue-600);
+}
+
+/* ---- バッジ ---- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--blue-100);
+  color: var(--blue-600);
+}
+.badge.purple {
+  background: var(--purple-100);
+  color: var(--purple-600);
+}
+
+/* =====================================================================
+   ログイン
+   ===================================================================== */
+.login-page {
+  min-height: calc(100vh - 64px);
+  display: grid;
+  place-items: center;
+  padding: var(--space-5);
+  /* main の幅の外まで背景を広げる */
+  margin: calc(-1 * var(--space-5)) calc(50% - 50vw);
+}
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-6);
+  box-shadow: var(--shadow-lg);
+}
+.login-hero {
+  text-align: center;
+  margin-bottom: var(--space-5);
+}
+.login-hero .brand-mark .icon {
+  width: 30px;
+  height: 30px;
+}
+.login-hero .brand-mark {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto var(--space-3);
+  border-radius: var(--radius);
+  background: var(--grad-brand);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+.login-hero h2 {
+  margin-bottom: var(--space-1);
+}
+.login-card button[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  font-size: var(--fs-lg);
+}
+/* 最初に見るボタンなので、未入力（押せない）でも「入力すれば押せる」と分かる薄い青にする */
+.login-card button[type="submit"]:disabled {
+  background: var(--blue-100);
+  border-color: var(--blue-100);
+  color: var(--blue-600);
+}
+.login-card .switch {
+  display: block;
+  margin: var(--space-3) auto 0;
+}
+
+/* =====================================================================
+   学生のトップ（ダッシュボード・レベル選択）
+   ===================================================================== */
+.welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+.welcome h2 {
+  margin-bottom: var(--space-1);
+}
+.welcome p {
+  margin: 0;
+  color: var(--text-muted);
+}
+.welcome .stats {
+  margin: 0;
+  flex: 1 1 380px;
+}
+.welcome .stats > div {
+  background: var(--surface-muted);
+}
+/* 練習の設定は 1 行に収め、場所を取らない */
+.card.toolbar {
+  padding: var(--space-3) var(--space-5);
+}
+.toolbar label {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.toolbar label select {
+  width: auto;
+  min-width: 200px;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.toolbar label {
+  margin: 0;
+  min-width: 240px;
+}
+.stage-card h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-1);
+}
+.stage-number {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--blue-50);
+  color: var(--blue-600);
+  border: 1px solid var(--blue-100);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  flex: none;
+}
+.levels {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-4) 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+.levels li {
+  display: flex;
+}
+/* レベルのタイル（ボタンの名前はレベル名のまま。説明は中に小さく出す） */
+.level-tile {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 4px;
+  text-align: left;
+  padding: var(--space-4);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.level-tile:hover:not(:disabled) {
+  background: var(--blue-50);
+  border-color: var(--blue-600);
+  box-shadow: var(--shadow);
+}
+.level-tile .level-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+.level-tile .level-title .icon {
+  color: var(--blue-600);
+}
+.level-tile .level-desc {
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* =====================================================================
+   タイピング練習
+   ===================================================================== */
+.play {
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.play .progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+.play .progress strong {
+  color: var(--text);
+}
+.progress-bar {
+  height: 6px;
+  margin: var(--space-2) 0 var(--space-4);
+  background: var(--blue-100);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.progress-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--blue-600);
+  border-radius: var(--radius-pill);
+  transition: width 0.25s ease;
+}
+.target {
+  font-family: var(--font-mono);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  word-break: break-all;
+  line-height: 1.4;
+  margin-bottom: var(--space-3);
+}
+.target .pending {
+  color: var(--text-faint);
+}
+.target .ok {
+  color: var(--ok);
+}
+.ng {
+  color: var(--ng);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+/* 日本語の問題は字の幅が広いので、字の間を詰め、日本語のフォントで表示する */
+.target-ja {
+  font-family: var(--font);
+  letter-spacing: 0.02em;
+}
+.typing {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xl);
+  padding: 12px 14px;
+  border-width: 2px;
+  border-color: var(--border-strong);
+  border-radius: var(--radius);
+}
+.typing:focus {
+  border-color: var(--blue-600);
+  box-shadow: var(--focus);
+}
+.play-hint {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+}
+kbd {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  padding: 1px 6px;
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* =====================================================================
+   結果・これまでの記録・グラフ
+   ===================================================================== */
+.result-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+}
+.result-head .stats {
+  flex: 1 1 320px;
+  margin: 0;
+}
+.chart {
+  margin: var(--space-5) 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.chart figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+  color: var(--text);
+}
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 0 var(--space-4);
+}
+.chart-box {
+  position: relative;
+}
+.chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.chart .grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.chart .axis {
+  fill: var(--text-muted);
+  font-size: 11px;
+}
+.chart .crosshair {
+  stroke: var(--text-faint);
+  stroke-width: 1;
+}
+.chart .series-line {
+  fill: none;
+  stroke: var(--blue-600);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+}
+.chart .series-dot {
+  fill: var(--blue-600);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+.chart .value-label {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+.tooltip {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  background: var(--navy-800);
+  color: var(--text-on-dark);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: var(--fs-xs);
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+}
+.tooltip strong {
+  font-size: var(--fs-sm);
+}
+.bars {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.bars li {
+  display: grid;
+  grid-template-columns: 9em 1fr 11em;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: var(--fs-sm);
+}
+.bar-track {
+  height: 14px;
+  background: var(--blue-50);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.bar-fill {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  background: var(--blue-600);
+  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+}
+.bar-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* =====================================================================
+   教員: 学生一覧
+   ===================================================================== */
+.list-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+.list-tools input {
+  flex: 0 1 18em;
+  padding-left: 36px;
+  background: var(--surface)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c86a2' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E")
+    no-repeat 12px center / 16px;
+}
+.student-table {
+  font-size: var(--fs-sm);
+}
+.student-table th,
+.student-table td {
+  padding: 8px 6px;
+  white-space: nowrap;
+}
+.sort-button {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  padding: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  border-radius: 4px;
+}
+.sort-button:hover {
+  background: none;
+  color: var(--blue-600);
+}
+.sort-mark {
+  color: var(--blue-600);
+}
+.row-ops {
+  white-space: nowrap;
+}
+.csv-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.csv-row p {
+  margin: 0;
+}
+
+/* =====================================================================
+   教員: ステージ・レベルの管理、学生の追加（枠で区切る）
+   ===================================================================== */
+.manage-stage {
+  margin-top: var(--space-5);
+}
+.manage-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+.manage-row input {
+  flex: 1 1 10em;
+}
+.manage-row input.order {
+  flex: 0 0 5em;
+  width: 5em;
+}
+.stage-row input {
+  font-weight: 600;
+}
+.manage-row textarea {
+  flex: 1 1 100%;
+  min-height: 3em;
+}
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+.manage-box {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4) var(--space-2);
+  margin-bottom: var(--space-3);
+  background: var(--surface);
+}
+.stage-box {
+  background: var(--blue-50);
+  border-color: #c9d3fb;
+  border-left: 4px solid var(--blue-600);
+}
+.level-box {
+  margin-left: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+.new-box {
+  border-style: dashed;
+  background: var(--surface-muted);
+  box-shadow: none;
+}
+.new-stage-box {
+  margin-top: var(--space-5);
+}
+.box-heading {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
+}
+.stage-box > .box-heading {
+  color: var(--blue-600);
+}
+/* 非表示中のステージ・レベル */
+.hidden-item input,
+.hidden-item textarea {
+  background: #f1f3f8;
+  color: var(--text-muted);
+}
+.hidden-badge {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--warn-text);
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  border-radius: var(--radius-pill);
+  padding: 1px 10px;
+  letter-spacing: 0;
+}
+.prompt-help {
+  margin: var(--space-2) 0 var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.prompt-help summary {
+  cursor: pointer;
+  color: var(--blue-600);
+  font-weight: 600;
+}
+.prompt-help p {
+  margin: var(--space-2) 0 0;
+}
+.add-students {
+  margin-top: var(--space-4);
+}
+.add-students textarea {
+  width: 100%;
+}
+
+/* =====================================================================
+   スマートフォン（狭い画面）
+   ===================================================================== */
+@media (max-width: 640px) {
+  main {
+    padding: var(--space-3);
+  }
+  .card {
+    padding: var(--space-4);
+    border-radius: var(--radius);
+  }
+  .app-header-inner {
+    padding: var(--space-2) var(--space-3);
+  }
+  /* 狭い画面では、名前とログアウトの文字を隠してアイコンだけにする（名前はトップの「こんにちは」で分かる） */
+  .user .user-name-text,
+  .user .logout-text {
+    display: none;
+  }
+  .brand {
+    white-space: nowrap;
+    font-size: var(--fs-md);
+  }
+  .login-card {
+    padding: var(--space-5);
+  }
+  .level-box {
+    margin-left: var(--space-2);
+  }
+  .bars li {
+    grid-template-columns: 6.5em 1fr;
+  }
+  .bars li .bar-value {
+    grid-column: 2;
+  }
+  .tabs {
+    width: 100%;
+  }
+  .tabs button {
+    flex: 1;
+    padding: 8px 6px;
+    font-size: var(--fs-sm);
+  }
+  .stats .value {
+    font-size: var(--fs-xl);
+  }
+}
+
+/* 結果の表: ミスのある問題を目立たせる */
+.result-table tr.has-miss td {
+  background: var(--ng-bg);
+}
+.result-table tr.has-miss:hover td {
+  background: #ffe3e3;
+}
+
+/* グラフを並べるときは、グラフの枠の上下の余白を詰める（見出しとの間が空きすぎないように） */
+.chart-grid .chart {
+  margin: 0 0 var(--space-4);
+}
+/* 表の中のリンクのボタンは、表の文字の大きさに合わせる */
+td button.link {
+  font-size: inherit;
+  font-weight: 500;
+  padding: 2px 6px;
+}
+
+/* 苦手克服トレーニング */
+.training-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  border-left: 4px solid var(--blue-600);
+}
+.training-card > div {
+  flex: 1 1 360px;
+}
+.training-card h2 {
+  margin-bottom: var(--space-1);
+}
+.analysis-note {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  margin: var(--space-3) 0 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--blue-50);
+  color: var(--text-muted);
+  border-left: 3px solid var(--blue-100);
+  font-size: var(--fs-sm);
+}
+.analysis-note .icon {
+  color: var(--blue-600);
+  margin-top: 3px;
+}
+/* 空白（␣ で表示）は、文字より薄く小さくして、打つ文字と見分けやすくする */
+.target .space {
+  font-size: 0.7em;
+  opacity: 0.55;
+}
+.target .space.ng {
+  opacity: 1;
+}
+
+/* これまでの記録: 上の「戻る」と見出しの間を空ける */
+.card > button.secondary:first-child {
+  margin-bottom: var(--space-4);
+}
+
+/* =====================================================================
+   待っている間の画面（スケルトン）: 練習画面と同じ形の灰色の枠と、実際の処理の手順
+   ===================================================================== */
+.sk {
+  display: inline-block;
+  background: var(--blue-100);
+  border-radius: var(--radius-sm);
+  animation: sk-pulse 1.4s ease-in-out infinite;
+}
+.sk-text {
+  height: 0.9em;
+  vertical-align: middle;
+}
+.sk-target {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(clamp(1.8rem, 5vw, 2.8rem) * 1.4 + 2 * var(--space-6) + 2px);
+}
+.sk-line {
+  height: 1.1em;
+}
+.sk-input {
+  display: block;
+  width: 100%;
+  height: 54px;
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+  border: 2px solid var(--border);
+}
+@keyframes sk-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+.sk-steps {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-4) 0 0;
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--fs-sm);
+  color: var(--text-faint);
+}
+.sk-steps li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.sk-steps li::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  flex: none;
+}
+.sk-steps li.done {
+  color: var(--text-muted);
+}
+.sk-steps li.done::before {
+  background: var(--blue-600);
+  border-color: var(--blue-600);
+}
+.sk-steps li.now {
+  color: var(--text);
+  font-weight: 600;
+}
+.sk-steps li.now::before {
+  border-color: var(--blue-600);
+  animation: sk-pulse 1s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sk,
+  .sk-steps li.now::before {
+    animation: none;
+  }
+}
+
+/* ---- キーボードの設定 ---- */
+.kb-list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-4) 0;
+  display: grid;
+  gap: var(--space-3);
+}
+.kb-row {
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr) auto auto auto;
+  align-items: center;
+  gap: var(--space-3);
+}
+.kb-keys {
+  margin-top: var(--space-3);
+}
+/* キーごとのカード（キーの文字を大きく、指をその下に） */
+.kb-key-grid {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-3) 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--space-2);
+}
+.kb-key-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+.kb-key-card {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  text-align: left;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: none;
+  font-weight: 400;
+}
+.kb-key-card:not(:disabled):hover {
+  border-color: var(--blue-600);
+  background: var(--surface);
+}
+.kb-key-card.selected {
+  border-color: var(--blue-600);
+  box-shadow: 0 0 0 2px var(--blue-600);
+}
+.kb-key-card:disabled,
+.kb-key-card:disabled:hover {
+  opacity: 1;
+  cursor: default;
+  color: var(--text);
+  background: var(--surface);
+  border-color: var(--border);
+}
+.kb-keycap {
+  display: grid;
+  place-items: center;
+  min-width: 2.6rem;
+  height: 2.6rem;
+  padding: 0 6px;
+  font-family: var(--font-mono);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-muted);
+  border: 1px solid var(--border-strong);
+  border-bottom-width: 3px;
+  border-radius: var(--radius-sm);
+}
+.kb-keycap.long {
+  font-size: 0.8rem;
+}
+.kb-key-finger {
+  font-size: var(--fs-sm);
+  line-height: 1.3;
+}
+/* 選んだキーの指を変える欄 */
+.kb-finger-panel {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 2px solid var(--blue-600);
+  border-radius: var(--radius-sm);
+  display: grid;
+  gap: var(--space-3);
+}
+.kb-finger-panel-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* キーを押して登録: 進み具合・出ている文字と押したボタン・指の番号 */
+.key-capture-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--border);
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+}
+.key-capture-progress span {
+  display: block;
+  height: 100%;
+  background: var(--grad-brand, var(--blue-600));
+  transition: width 0.2s;
+}
+.key-capture-target {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.key-capture-arrow {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+}
+.key-capture-pressed {
+  padding: 0.3em 0.6em;
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  border: 2px dashed var(--blue-600);
+  border-radius: var(--radius-sm);
+}
+.finger-digit {
+  display: inline-grid;
+  place-items: center;
+  width: 1.3em;
+  height: 1.3em;
+  margin-right: 4px;
+  font-size: 0.75em;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  opacity: 0.8;
+}
