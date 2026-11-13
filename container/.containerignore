@@ -1,0 +1,4 @@
+# ビルドに使うのは .build と entrypoint.sh だけ
+*
+!.build
+!entrypoint.sh

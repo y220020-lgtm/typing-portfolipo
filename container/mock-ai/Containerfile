@@ -1,0 +1,8 @@
+# AI モックのコンテナ定義（Docker / Podman 共通）
+FROM docker.io/library/node:22-alpine
+WORKDIR /app
+COPY server.mjs generate.mjs ./
+ENV HOST=0.0.0.0 PORT=4999 MOCK_MODE=ok
+EXPOSE 4999
+USER node
+CMD ["node", "server.mjs"]
