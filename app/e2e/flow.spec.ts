@@ -595,8 +595,8 @@ test("テーマの切り替え（ライト / ダーク）が保存され、再�
   await page.getByRole("button", { name: "ダークモードにする" }).click();
   await expect(html).toHaveAttribute("data-theme", "dark");
   // 背景の色が暗くなる
-  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(bg).toBe("rgb(10, 16, 40)");
+  // 色はアニメーションで切り替わるので、変わり終わるまで待つ
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(10, 16, 40)");
   await page.reload();
   await expect(html).toHaveAttribute("data-theme", "dark");
   await expect(page.getByRole("button", { name: "ライトモードにする" })).toBeVisible();
@@ -613,7 +613,7 @@ test("テーマの切り替え（ライト / ダーク）が保存され、再�
   const ctx2 = await browser.newContext({ colorScheme: "dark" });
   const p2 = await ctx2.newPage();
   await p2.goto("/");
-  expect(await p2.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(10, 16, 40)");
+  await expect.poll(() => p2.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(10, 16, 40)");
   await ctx2.close();
 });
 
