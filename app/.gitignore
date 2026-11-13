@@ -1,0 +1,8 @@
+node_modules/
+dist/
+# 開発用 DB（schema.sql と seed から npm run db:init で作り直せる）
+data/*.db
+data/*.db-wal
+data/*.db-shm
+test-results/
+playwright-report/

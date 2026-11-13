@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Generated files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary databases (NOT including タイピング.db which is the design reference)
+database/
+lib/*.db
+lib/database/
+!lib/タイピング.db
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+
+# コンテナのビルド用の一時フォルダー（container/build.sh が作り直す）
+container/.build/
+# container/typing.sh の設定（合言葉などの秘密を書くので Git の管理外）
+container/typing.env
