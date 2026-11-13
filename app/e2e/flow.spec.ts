@@ -433,26 +433,33 @@ test("学生はキーボードを追加し、キーと指の割り当てを変�
   await page.getByRole("button", { name: "キーボードの設定" }).click();
   await expect(page.getByRole("heading", { name: "キーボードの設定" })).toBeVisible();
 
-  // 標準の割り当て・US 配列の並びで追加
-  await page.getByPlaceholder("例: 学校の JIS、自宅の US 配列").fill("自宅の US 配列");
+  // US 配列の標準の割り当て・US 配列の並びで追加
+  await page.getByPlaceholder("例: 学校の JIS キーボード").fill("自宅の US 配列");
+  await page.getByLabel("キーの登録のしかた").selectOption("template:us");
   await page.getByLabel("追加するキーボードのキーの並び").selectOption("us");
   await page.getByRole("button", { name: "追加", exact: true }).click();
-  await expect(page.getByText("キーボード「自宅の US 配列」を追加しました")).toBeVisible();
+  await expect(page.getByText("キーボード「自宅の US 配列」を追加しました。")).toBeVisible();
   const box = page.getByLabel("キーボード 自宅の US 配列");
 
-  // 割り当てを変える: Y を右人差し指に、- を追加
+  // 割り当てを変える: カードを押して指のボタンで選ぶ。Y を右中指に、Fn を追加して左親指に
   await box.getByRole("button", { name: "割り当てを編集" }).click();
-  await box.getByLabel("Y の指").selectOption("R2");
-  await box.getByLabel("追加するキー").fill("-");
+  await box.getByRole("button", { name: /^Y：/ }).click();
+  const yPanel = box.getByRole("group", { name: "Y の指" });
+  await yPanel.getByRole("button", { name: "右中指" }).click(); // 右人差し指 ＋ 右中指
+  await yPanel.getByRole("button", { name: "右人差し指" }).click(); // 右中指だけ
+  await box.getByLabel("追加するキー").fill("Fn");
   await box.getByRole("button", { name: "キーを追加" }).click();
-  await box.getByLabel("- の指").selectOption("R5");
+  await box.getByRole("button", { name: /^Fn：/ }).click();
+  const fnPanel = box.getByRole("group", { name: "Fn の指" });
+  await fnPanel.getByRole("button", { name: "左親指" }).click();
+  await fnPanel.getByRole("button", { name: "左人差し指" }).click();
   await box.getByRole("button", { name: "割り当てを保存" }).click();
-  await expect(page.getByText("「自宅の US 配列」の割り当てを保存しました")).toBeVisible();
+  await expect(page.getByText("「自宅の US 配列」の割り当てを保存しました。")).toBeVisible();
   // 保存したあとも開いたまま。サーバーから読み直した値が出ている
-  await expect(page.getByLabel("キーボード 自宅の US 配列").getByLabel("Y の指")).toHaveValue("R2");
-  await expect(page.getByLabel("キーボード 自宅の US 配列").getByLabel("- の指")).toHaveValue("R5");
+  await expect(page.getByLabel("キーボード 自宅の US 配列").getByRole("button", { name: /^Y：R3（右中指）/ })).toBeVisible();
+  await expect(page.getByLabel("キーボード 自宅の US 配列").getByRole("button", { name: /^Fn：L1（左親指）/ })).toBeVisible();
 
-  // 練習の設定で選べ、練習中のキーボードが US 配列の形になる（` のキーがある）。指は設定どおり（Y は右人差し指）
+  // 練習の設定で選べ、練習中のキーボードが US 配列の形になる（` のキーがある）。指は設定どおり（Y は右中指）
   await page.getByRole("button", { name: "レベル選択に戻る" }).first().click();
   await expect(page.getByLabel("使うキーボード").locator("option", { hasText: "自宅の US 配列" })).toHaveCount(1);
   await page.getByLabel("使うキーボード").selectOption({ label: "自宅の US 配列" });
@@ -465,7 +472,7 @@ test("学生はキーボードを追加し、キーと指の割り当てを変�
   await page.getByRole("button", { name: "中指の練習" }).click();
   await expect(page.locator(".osk-board")).toHaveAttribute("data-layout", "us");
   await expect(page.locator(".osk-key", { hasText: "`" })).toHaveCount(1);
-  await expect(page.getByRole("figure", { name: "次に打つキー" }).getByText("次は「y」：右人差し指（R2）")).toBeVisible();
+  await expect(page.getByRole("figure", { name: "次に打つキー" }).getByText("次は「y」：右中指（R3）")).toBeVisible();
   await page.unroute("**/api/sessions");
   await page.getByRole("button", { name: "やめる（ここまでの記録は保存済み）" }).click();
 
